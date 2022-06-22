@@ -307,7 +307,7 @@
 
             <span slot="footer" class="dialog-footer">
                 <el-button @@click="CancelTheIpload">取消上传</el-button>
-                <el-button type="primary" @@click="dialogVisible3 = false">确定上传</el-button>
+                <el-button type="primary" @@click="ConfirmUpload">确定上传</el-button>
             </span>
         </el-dialog>
     </div>
@@ -496,6 +496,7 @@
                     this.pagination.currentPage = currentPage;
                     this.findPage();
                 },
+                // 上传数据分页查询
                 handleCurrentChange2(currentPage) {
                     this.pagination2.currentPage = currentPage;
                     axios.post("/MaterialManagement/findByPage", this.pagination2).then((res) => {
@@ -694,6 +695,28 @@
                     this.tableData2 = [];
                     // 上传按钮展示
                     this.hasFile = false;
+                },
+                // 确认上传事件
+                ConfirmUpload() {
+                    axios.post("/MaterialManagement/").then((res) => {
+                        if (res.data.flag) {
+                            this.$notify({
+                                title: '成功',
+                                message: res.data.message,
+                                type: 'success'
+                            });
+                            this.$refs.upload.clearFiles();
+                            this.formData = {};
+                            this.tableData2 = [];
+                            this.findPage();
+                            this.hasFile = false;
+                        } else {
+                            this.$notify.error({
+                                title: '错误',
+                                message: res.data.message
+                            });
+                        }
+                    });
                 }
             }
         });
