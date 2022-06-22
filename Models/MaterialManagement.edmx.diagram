@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="5889965ab44e45aca72530e90cd32aac" Name="Diagram1">
+        <EntityTypeShape EntityType="Material_ManagementModel.franchiser_table" Width="1.5" PointX="0.75" PointY="1.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Material_ManagementModel.manufacturer_table" Width="1.5" PointX="0.75" PointY="5.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Material_ManagementModel.matter_table" Width="1.5" PointX="3" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="Material_ManagementModel.product_type" Width="1.5" PointX="0.75" PointY="7.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Material_ManagementModel.the_winning_type" Width="1.5" PointX="0.75" PointY="10" IsExpanded="true" />
+        <AssociationConnector Association="Material_ManagementModel.FK_MATTER_T_REFERENCE_FRANCHIS" ManuallyRouted="false" />
+        <AssociationConnector Association="Material_ManagementModel.FK_MATTER_T_REFERENCE_MANUFACT" ManuallyRouted="false" />
+        <AssociationConnector Association="Material_ManagementModel.FK_MATTER_T_REFERENCE_PRODUCT_" ManuallyRouted="false" />
+        <AssociationConnector Association="Material_ManagementModel.FK_MATTER_T_REFERENCE_THE_WINN" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

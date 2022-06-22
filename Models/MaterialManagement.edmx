@@ -1,0 +1,329 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="Material_ManagementModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="franchiser_table">
+          <Key>
+            <PropertyRef Name="franchiser_id" />
+          </Key>
+          <Property Name="franchiser_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="franchiser_name" Type="varchar" MaxLength="60" />
+          <Property Name="franchiser_status" Type="int" />
+        </EntityType>
+        <EntityType Name="manufacturer_table">
+          <Key>
+            <PropertyRef Name="manufacturer_id" />
+          </Key>
+          <Property Name="manufacturer_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="manufacturer_name" Type="varchar" MaxLength="50" />
+          <Property Name="manufacturer_status" Type="int" />
+        </EntityType>
+        <EntityType Name="matter_table">
+          <Key>
+            <PropertyRef Name="matterid" />
+          </Key>
+          <Property Name="matterid" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="matter_name" Type="varchar" MaxLength="30" />
+          <Property Name="matter_code" Type="varchar" MaxLength="30" />
+          <Property Name="product_type_id" Type="int" />
+          <Property Name="the_winning_type_id" Type="int" />
+          <Property Name="purchase_price" Type="decimal" Precision="10" Scale="2" />
+          <Property Name="Selling_price" Type="decimal" Precision="10" Scale="2" />
+          <Property Name="manufacturer_id" Type="int" />
+          <Property Name="franchiser_id" Type="int" />
+        </EntityType>
+        <EntityType Name="product_type">
+          <Key>
+            <PropertyRef Name="product_type_id" />
+          </Key>
+          <Property Name="product_type_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="product_type_name" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="the_winning_type">
+          <Key>
+            <PropertyRef Name="the_winning_type_id" />
+          </Key>
+          <Property Name="the_winning_type_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="the_winning_type_name" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <Association Name="FK_MATTER_T_REFERENCE_FRANCHIS">
+          <End Role="franchiser_table" Type="Self.franchiser_table" Multiplicity="0..1" />
+          <End Role="matter_table" Type="Self.matter_table" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="franchiser_table">
+              <PropertyRef Name="franchiser_id" />
+            </Principal>
+            <Dependent Role="matter_table">
+              <PropertyRef Name="franchiser_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATTER_T_REFERENCE_MANUFACT">
+          <End Role="manufacturer_table" Type="Self.manufacturer_table" Multiplicity="0..1" />
+          <End Role="matter_table" Type="Self.matter_table" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="manufacturer_table">
+              <PropertyRef Name="manufacturer_id" />
+            </Principal>
+            <Dependent Role="matter_table">
+              <PropertyRef Name="manufacturer_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATTER_T_REFERENCE_PRODUCT_">
+          <End Role="product_type" Type="Self.product_type" Multiplicity="0..1" />
+          <End Role="matter_table" Type="Self.matter_table" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="product_type">
+              <PropertyRef Name="product_type_id" />
+            </Principal>
+            <Dependent Role="matter_table">
+              <PropertyRef Name="product_type_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATTER_T_REFERENCE_THE_WINN">
+          <End Role="the_winning_type" Type="Self.the_winning_type" Multiplicity="0..1" />
+          <End Role="matter_table" Type="Self.matter_table" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="the_winning_type">
+              <PropertyRef Name="the_winning_type_id" />
+            </Principal>
+            <Dependent Role="matter_table">
+              <PropertyRef Name="the_winning_type_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="Material_ManagementModelStoreContainer">
+          <EntitySet Name="franchiser_table" EntityType="Self.franchiser_table" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="manufacturer_table" EntityType="Self.manufacturer_table" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="matter_table" EntityType="Self.matter_table" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="product_type" EntityType="Self.product_type" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="the_winning_type" EntityType="Self.the_winning_type" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_MATTER_T_REFERENCE_FRANCHIS" Association="Self.FK_MATTER_T_REFERENCE_FRANCHIS">
+            <End Role="franchiser_table" EntitySet="franchiser_table" />
+            <End Role="matter_table" EntitySet="matter_table" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATTER_T_REFERENCE_MANUFACT" Association="Self.FK_MATTER_T_REFERENCE_MANUFACT">
+            <End Role="manufacturer_table" EntitySet="manufacturer_table" />
+            <End Role="matter_table" EntitySet="matter_table" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATTER_T_REFERENCE_PRODUCT_" Association="Self.FK_MATTER_T_REFERENCE_PRODUCT_">
+            <End Role="product_type" EntitySet="product_type" />
+            <End Role="matter_table" EntitySet="matter_table" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATTER_T_REFERENCE_THE_WINN" Association="Self.FK_MATTER_T_REFERENCE_THE_WINN">
+            <End Role="the_winning_type" EntitySet="the_winning_type" />
+            <End Role="matter_table" EntitySet="matter_table" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="Material_ManagementModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="franchiser_table">
+          <Key>
+            <PropertyRef Name="franchiser_id" />
+          </Key>
+          <Property Name="franchiser_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="franchiser_name" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="franchiser_status" Type="Int32" />
+          <NavigationProperty Name="matter_table" Relationship="Self.FK_MATTER_T_REFERENCE_FRANCHIS" FromRole="franchiser_table" ToRole="matter_table" />
+        </EntityType>
+        <EntityType Name="manufacturer_table">
+          <Key>
+            <PropertyRef Name="manufacturer_id" />
+          </Key>
+          <Property Name="manufacturer_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="manufacturer_name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="manufacturer_status" Type="Int32" />
+          <NavigationProperty Name="matter_table" Relationship="Self.FK_MATTER_T_REFERENCE_MANUFACT" FromRole="manufacturer_table" ToRole="matter_table" />
+        </EntityType>
+        <EntityType Name="matter_table">
+          <Key>
+            <PropertyRef Name="matterid" />
+          </Key>
+          <Property Name="matterid" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="matter_name" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="matter_code" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="product_type_id" Type="Int32" />
+          <Property Name="the_winning_type_id" Type="Int32" />
+          <Property Name="purchase_price" Type="Decimal" Precision="10" Scale="2" />
+          <Property Name="Selling_price" Type="Decimal" Precision="10" Scale="2" />
+          <Property Name="manufacturer_id" Type="Int32" />
+          <Property Name="franchiser_id" Type="Int32" />
+          <NavigationProperty Name="franchiser_table" Relationship="Self.FK_MATTER_T_REFERENCE_FRANCHIS" FromRole="matter_table" ToRole="franchiser_table" />
+          <NavigationProperty Name="manufacturer_table" Relationship="Self.FK_MATTER_T_REFERENCE_MANUFACT" FromRole="matter_table" ToRole="manufacturer_table" />
+          <NavigationProperty Name="product_type" Relationship="Self.FK_MATTER_T_REFERENCE_PRODUCT_" FromRole="matter_table" ToRole="product_type" />
+          <NavigationProperty Name="the_winning_type" Relationship="Self.FK_MATTER_T_REFERENCE_THE_WINN" FromRole="matter_table" ToRole="the_winning_type" />
+        </EntityType>
+        <EntityType Name="product_type">
+          <Key>
+            <PropertyRef Name="product_type_id" />
+          </Key>
+          <Property Name="product_type_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="product_type_name" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="matter_table" Relationship="Self.FK_MATTER_T_REFERENCE_PRODUCT_" FromRole="product_type" ToRole="matter_table" />
+        </EntityType>
+        <EntityType Name="the_winning_type">
+          <Key>
+            <PropertyRef Name="the_winning_type_id" />
+          </Key>
+          <Property Name="the_winning_type_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="the_winning_type_name" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="matter_table" Relationship="Self.FK_MATTER_T_REFERENCE_THE_WINN" FromRole="the_winning_type" ToRole="matter_table" />
+        </EntityType>
+        <Association Name="FK_MATTER_T_REFERENCE_FRANCHIS">
+          <End Role="franchiser_table" Type="Self.franchiser_table" Multiplicity="0..1" />
+          <End Role="matter_table" Type="Self.matter_table" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="franchiser_table">
+              <PropertyRef Name="franchiser_id" />
+            </Principal>
+            <Dependent Role="matter_table">
+              <PropertyRef Name="franchiser_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATTER_T_REFERENCE_MANUFACT">
+          <End Role="manufacturer_table" Type="Self.manufacturer_table" Multiplicity="0..1" />
+          <End Role="matter_table" Type="Self.matter_table" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="manufacturer_table">
+              <PropertyRef Name="manufacturer_id" />
+            </Principal>
+            <Dependent Role="matter_table">
+              <PropertyRef Name="manufacturer_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATTER_T_REFERENCE_PRODUCT_">
+          <End Role="product_type" Type="Self.product_type" Multiplicity="0..1" />
+          <End Role="matter_table" Type="Self.matter_table" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="product_type">
+              <PropertyRef Name="product_type_id" />
+            </Principal>
+            <Dependent Role="matter_table">
+              <PropertyRef Name="product_type_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATTER_T_REFERENCE_THE_WINN">
+          <End Role="the_winning_type" Type="Self.the_winning_type" Multiplicity="0..1" />
+          <End Role="matter_table" Type="Self.matter_table" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="the_winning_type">
+              <PropertyRef Name="the_winning_type_id" />
+            </Principal>
+            <Dependent Role="matter_table">
+              <PropertyRef Name="the_winning_type_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="Material_ManagementEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="franchiser_table" EntityType="Self.franchiser_table" />
+          <EntitySet Name="manufacturer_table" EntityType="Self.manufacturer_table" />
+          <EntitySet Name="matter_table" EntityType="Self.matter_table" />
+          <EntitySet Name="product_type" EntityType="Self.product_type" />
+          <EntitySet Name="the_winning_type" EntityType="Self.the_winning_type" />
+          <AssociationSet Name="FK_MATTER_T_REFERENCE_FRANCHIS" Association="Self.FK_MATTER_T_REFERENCE_FRANCHIS">
+            <End Role="franchiser_table" EntitySet="franchiser_table" />
+            <End Role="matter_table" EntitySet="matter_table" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATTER_T_REFERENCE_MANUFACT" Association="Self.FK_MATTER_T_REFERENCE_MANUFACT">
+            <End Role="manufacturer_table" EntitySet="manufacturer_table" />
+            <End Role="matter_table" EntitySet="matter_table" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATTER_T_REFERENCE_PRODUCT_" Association="Self.FK_MATTER_T_REFERENCE_PRODUCT_">
+            <End Role="product_type" EntitySet="product_type" />
+            <End Role="matter_table" EntitySet="matter_table" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATTER_T_REFERENCE_THE_WINN" Association="Self.FK_MATTER_T_REFERENCE_THE_WINN">
+            <End Role="the_winning_type" EntitySet="the_winning_type" />
+            <End Role="matter_table" EntitySet="matter_table" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="Material_ManagementModelStoreContainer" CdmEntityContainer="Material_ManagementEntities">
+          <EntitySetMapping Name="franchiser_table">
+            <EntityTypeMapping TypeName="Material_ManagementModel.franchiser_table">
+              <MappingFragment StoreEntitySet="franchiser_table">
+                <ScalarProperty Name="franchiser_id" ColumnName="franchiser_id" />
+                <ScalarProperty Name="franchiser_name" ColumnName="franchiser_name" />
+                <ScalarProperty Name="franchiser_status" ColumnName="franchiser_status" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="manufacturer_table">
+            <EntityTypeMapping TypeName="Material_ManagementModel.manufacturer_table">
+              <MappingFragment StoreEntitySet="manufacturer_table">
+                <ScalarProperty Name="manufacturer_id" ColumnName="manufacturer_id" />
+                <ScalarProperty Name="manufacturer_name" ColumnName="manufacturer_name" />
+                <ScalarProperty Name="manufacturer_status" ColumnName="manufacturer_status" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="matter_table">
+            <EntityTypeMapping TypeName="Material_ManagementModel.matter_table">
+              <MappingFragment StoreEntitySet="matter_table">
+                <ScalarProperty Name="matterid" ColumnName="matterid" />
+                <ScalarProperty Name="matter_name" ColumnName="matter_name" />
+                <ScalarProperty Name="matter_code" ColumnName="matter_code" />
+                <ScalarProperty Name="product_type_id" ColumnName="product_type_id" />
+                <ScalarProperty Name="the_winning_type_id" ColumnName="the_winning_type_id" />
+                <ScalarProperty Name="purchase_price" ColumnName="purchase_price" />
+                <ScalarProperty Name="Selling_price" ColumnName="Selling_price" />
+                <ScalarProperty Name="manufacturer_id" ColumnName="manufacturer_id" />
+                <ScalarProperty Name="franchiser_id" ColumnName="franchiser_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="product_type">
+            <EntityTypeMapping TypeName="Material_ManagementModel.product_type">
+              <MappingFragment StoreEntitySet="product_type">
+                <ScalarProperty Name="product_type_id" ColumnName="product_type_id" />
+                <ScalarProperty Name="product_type_name" ColumnName="product_type_name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="the_winning_type">
+            <EntityTypeMapping TypeName="Material_ManagementModel.the_winning_type">
+              <MappingFragment StoreEntitySet="the_winning_type">
+                <ScalarProperty Name="the_winning_type_id" ColumnName="the_winning_type_id" />
+                <ScalarProperty Name="the_winning_type_name" ColumnName="the_winning_type_name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="无" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

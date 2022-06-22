@@ -1,0 +1,702 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>物质管理</title>
+    <link href="~/resource/elementui/index.css" rel="stylesheet" />
+    <style>
+        input {
+            width:217px!important;
+        }
+        .lr {
+            margin-right:10px !important;
+        }
+        .el-pagination__editor.el-input .el-input__inner {
+            width:40px !important;
+        }
+        .pd .el-dialog__body {
+            padding: 0px 20px !important;
+        }
+
+        .pd .el-table .warning-row {
+            background: oldlace;
+        }
+
+        .pd .el-table .success-row {
+            background: #f0f9eb;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1 style="text-align:center;font-weight:200;">物资管理系统</h1>
+        <hr />
+        <!--顶部的模糊查询-->
+        <el-form :inline="true" :model="pagination" class="demo-form-inline">
+            <el-form-item label="物资名称">
+                <el-input v-model="pagination.name" placeholder="物资名称"></el-input>
+            </el-form-item>
+            <el-form-item label="物质编号">
+                <el-input v-model="pagination.code" placeholder="物资编号"></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @@click="search">搜索</el-button>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="warning" @@click="resetForm">重置</el-button>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="success" @@click="add">新增</el-button>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @@click="tolead">导入Excel</el-button>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @@click="derive">导出Excel</el-button>
+            </el-form-item>
+        </el-form>
+        
+        <!--数据表格展示数据-->
+        <template>
+            <el-table :data="tableData"
+                      stripe
+                      style="width: 100%">
+                <el-table-column type="index" align="center" label="序号"></el-table-column>
+                <el-table-column prop="Name"
+                                 label="物质名称"
+                                 width="150"
+                                 align="center">
+                </el-table-column>
+                <el-table-column prop="Code"
+                                 label="物质编号"
+                                 width="150"
+                                 align="center">
+                </el-table-column>
+                <el-table-column prop="purchasePrice"
+                                 label="采购价格"
+                                 width="150"
+                                 align="center">
+                </el-table-column>
+                <el-table-column prop="SellingPrice"
+                                 label="售卖价格"
+                                 width="150"
+                                 align="center">
+                </el-table-column>
+                <el-table-column prop="producer"
+                                 label="生产商"
+                                 align="center">
+                </el-table-column>
+                <el-table-column prop="franchiser"
+                                 label="经销商"
+                                 align="center">
+                </el-table-column>
+                <el-table-column prop="productType"
+                                 label="产品类型"
+                                 width="150"
+                                 align="center">
+                </el-table-column>
+                <el-table-column prop="TheWinningType"
+                                 label="中标类型"
+                                 width="150"
+                                 align="center">
+                </el-table-column>
+                <el-table-column label="操作" align="center">
+                    <template slot-scope="scope">
+                        <el-button type="primary" size="mini" @@click="recompose(scope.row.Id)">修改</el-button>
+                        <el-button size="mini" type="danger" @@click="deltetData(scope.row.Id)">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </template>
+
+        <!--分页查询控件-->
+        <el-pagination background
+                       @@current-change="handleCurrentChange"
+                       :current-page="pagination.currentPage"
+                       :page-size="pagination.pageSize"
+                       layout="total, prev, pager, next, jumper"
+                       :total="pagination.total">
+        </el-pagination>
+
+        <!--添加和修改对话框-->
+        <el-dialog title="添加物质数据"
+                   :visible.sync="dialogVisible"
+                   width="37%"
+                   :before-close="handleClose">
+            <el-form :model="formData" :inline="true" :rules="rules" ref="formData" label-width="100px" class="demo-formData">
+                <el-form-item label="物资名称" prop="matter_name">
+                    <el-input v-model="formData.matter_name" placeholder="物资名称"></el-input>
+                </el-form-item>
+                <el-form-item label="物资编号" prop="matter_code">
+                    <el-input v-model="formData.matter_code" placeholder="物资编号"></el-input>
+                </el-form-item>
+                <el-form-item label="产品类型" prop="product_type_id">
+                    <el-select v-model="formData.product_type_id" placeholder="请选择产品类型">
+                        <el-option v-for="item in ComboBoxData.productType" :key="item.id" :label="item.val" :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="中标类型" prop="the_winning_type_id">
+                    <el-select v-model="formData.the_winning_type_id" placeholder="请选择中标类型">
+                        <el-option v-for="item in ComboBoxData.TheWinningType" :key="item.id" :label="item.val" :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="采购价格" prop="purchase_price">
+                    <el-input v-model="formData.purchase_price" placeholder="采购价格"></el-input>
+                </el-form-item>
+                <el-form-item label="售卖价格" prop="Selling_price">
+                    <el-input v-model="formData.Selling_price" placeholder="售卖价格"></el-input>
+                </el-form-item>
+                <el-form-item label="生产厂商" prop="manufacturer_id">
+                    <el-select v-model="formData.manufacturer_id" placeholder="请选择生产厂商">
+                        <el-option v-for="item in ComboBoxData.manufacturer" :key="item.id" :label="item.val" :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="经销商名" prop="franchiser_id">
+                    <el-select v-model="formData.franchiser_id" placeholder="请选择经销商名">
+                        <el-option v-for="item in ComboBoxData.franchiser" :key="item.id" :label="item.val" :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+
+                <el-form-item style="text-align: center; width: 100%; margin-top: 10px; margin-bottom: 0px;">
+                    <el-button type="primary" @@click="submitForm('formData')">保存</el-button>
+                    <el-button @@click="resetForm2('formData')">取消</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
+
+        <!--修改物质-->
+        <el-dialog title="修改物质数据"
+                   :visible.sync="dialogVisible2"
+                   width="37%"
+                   :before-close="handleClose">
+            <el-form :model="formData" :inline="true" :rules="rules" ref="formData" label-width="100px" class="demo-formData">
+                <el-form-item label="物资名称" prop="matter_name">
+                    <el-input v-model="formData.matter_name" placeholder="物资名称"></el-input>
+                </el-form-item>
+                <el-form-item label="物资编号" prop="matter_code">
+                    <el-input v-model="formData.matter_code" placeholder="物资编号"></el-input>
+                </el-form-item>
+                <el-form-item label="产品类型" prop="product_type_id">
+                    <el-select v-model="formData.product_type_id" placeholder="请选择产品类型">
+                        <el-option v-for="item in ComboBoxData.productType" :key="item.id" :label="item.val" :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="中标类型" prop="the_winning_type_id">
+                    <el-select v-model="formData.the_winning_type_id" placeholder="请选择中标类型">
+                        <el-option v-for="item in ComboBoxData.TheWinningType" :key="item.id" :label="item.val" :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="采购价格" prop="purchase_price">
+                    <el-input v-model="formData.purchase_price" placeholder="采购价格"></el-input>
+                </el-form-item>
+                <el-form-item label="售卖价格" prop="Selling_price">
+                    <el-input v-model="formData.Selling_price" placeholder="售卖价格"></el-input>
+                </el-form-item>
+                <el-form-item label="生产厂商" prop="manufacturer_id">
+                    <el-select v-model="formData.manufacturer_id" placeholder="请选择生产厂商">
+                        <el-option v-for="item in ComboBoxData.manufacturer" :key="item.id" :label="item.val" :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="经销商名" prop="franchiser_id">
+                    <el-select v-model="formData.franchiser_id" placeholder="请选择经销商名">
+                        <el-option v-for="item in ComboBoxData.franchiser" :key="item.id" :label="item.val" :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+
+                <el-form-item style="text-align: center; width: 100%; margin-top: 10px; margin-bottom: 0px;">
+                    <el-button type="primary" @@click="submitForm2('formData')">保存</el-button>
+                    <el-button @@click="resetForm2('formData')">取消</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
+
+        <!--Excel导入物资-->
+        <el-dialog title="导入物资"
+                   :visible.sync="dialogVisible3"
+                   width="80%"
+                   custom-class="pd"
+                   :before-close="handleClose">
+            <div>
+                <h4>1、请下载模板文件 <a href="~/resource/template.xls" icon="el-icon-download">下载模板</a></h4>
+                <h4>2、将需要导入的物资数据填写到模板当中，请不要修改模板格式</h4>
+                <el-upload class="upload-demo"
+                           ref="upload"
+                           :file-list="foleList"
+                           v-show="!hasFile"
+                           action="/MaterialManagement/upload"
+                           name="wrapper"
+                           :limit="1"
+                           :show-file-list="false"
+                           accept="application/xls,.xls"
+                           :on-success="successFile"
+                           :auto-upload="autoUpload"
+                           :before-upload="beforeUpload">
+                    <el-button size="small" type="primary">点击上传</el-button>
+                </el-upload>
+
+                <!--上传文件成功后的Excel数据展示-->
+                <div v-show="hasFile">
+                    <template>
+                        <el-table :data="tableData2"
+                                  style="width: 100%"
+                                  :row-class-name="tableRowClassName">
+                            <el-table-column type="index" align="center" label="序号"></el-table-column>
+                            <el-table-column prop="Name"
+                                             label="物质名称"
+                                             width="150"
+                                             align="center">
+                            </el-table-column>
+                            <el-table-column prop="Code"
+                                             label="物质编号"
+                                             width="150"
+                                             align="center">
+                            </el-table-column>
+                            <el-table-column prop="purchasePrice"
+                                             label="采购价格"
+                                             width="150"
+                                             align="center">
+                            </el-table-column>
+                            <el-table-column prop="SellingPrice"
+                                             label="售卖价格"
+                                             width="150"
+                                             align="center">
+                            </el-table-column>
+                            <el-table-column prop="producer"
+                                             label="生产商"
+                                             align="center">
+                            </el-table-column>
+                            <el-table-column prop="franchiser"
+                                             label="经销商"
+                                             align="center">
+                            </el-table-column>
+                            <el-table-column prop="productType"
+                                             label="产品类型"
+                                             width="150"
+                                             align="center">
+                            </el-table-column>
+                            <el-table-column prop="TheWinningType"
+                                             label="中标类型"
+                                             width="150"
+                                             align="center">
+                            </el-table-column>
+                        </el-table>
+                    </template>
+                    <el-pagination background
+                                   @@current-change="handleCurrentChange2"
+                                   :current-page="pagination2.currentPage"
+                                   :page-size="pagination2.pageSize"
+                                   layout="total, prev, pager, next, jumper"
+                                   :total="pagination2.total">
+                    </el-pagination>
+                </div>
+            </div>
+
+            <span slot="footer" class="dialog-footer">
+                <el-button @@click="CancelTheIpload">取消上传</el-button>
+                <el-button type="primary" @@click="dialogVisible3 = false">确定上传</el-button>
+            </span>
+        </el-dialog>
+    </div>
+    <script src="~/resource/element-ui/vue2.6.14.js"></script>
+    <script src="~/resource/elementui/index.js"></script>
+    <script src="~/resource/axios.min.js"></script>
+    
+
+    <script>
+        new Vue({
+            el: "#app",
+            data: {
+                // 上传文件列表
+                foleList:[],
+                autoUpload: true,//自动上传
+                // 文件上传是否显示
+                hasFile: false,
+                // 四个下拉框数据汇总
+                ComboBoxData: {
+                    //productType: [],
+                    //TheWinningType: [],
+                    //manufacturer: [],
+                    //franchiser:[]
+                },
+                // 分页相关属性
+                pagination: {
+                    currentPage: 1,
+                    pageSize: 10,
+                    total: 1,
+                    name: '',
+                    code: ''
+                },
+                // 上传Excels的分页控件
+                pagination2: {
+                    currentPage: 1,
+                    pageSize: 5,
+                    total: 1,
+                },
+                // 初始化数据的地方
+                tableData: [
+                    {
+                    id: 1,
+                    Name: '血糖仪',
+                    Code: 'ABD54545',
+                    purchasePrice: 1000,
+                    SellingPrice: 1688,
+                    producer: "南沙人民医院",
+                    franchiser: "南沙九王庙售卖部",
+                    productType: "高值",
+                    TheWinningType: "院内招标"
+                    }
+                ],
+                // 上传Excel的表格数据
+                tableData2: [],
+                dialogVisible: false,//控制添加窗口显示/隐藏
+                dialogVisible2: false, // 修改物资
+                dialogVisible3: false, // 导入物资
+                // 添加表单数据
+                formData: {},
+                // 表单验证规则
+                rules: {
+                    matter_name: [
+                        { required: true, message: '请填物资名称', trigger: 'blur' }
+                    ],
+                    matter_code: [
+                        { required: true, message: '请输入物资编号', trigger: 'blur' }
+                    ],
+                    product_type_id: [
+                        { required: true, message: '请选择产品类型', trigger: 'change' }
+                    ],
+                    the_winning_type_id: [
+                        { required: true, message: '请选择中标类型', trigger: 'change' }
+                    ],
+                    purchase_price: [
+                        { required: true, message: '请输入采购价格', trigger: 'blur' }
+                    ],
+                    Selling_price: [
+                        { required: true, message: '请输入售卖价格', trigger: 'blur' }
+                    ],
+                    franchiser_id: [
+                        { required: true, message: '请选择经销商', trigger: 'change' }
+                    ],
+                    manufacturer_id: [
+                        { required: true, message: '请选择生产商', trigger: 'change' }
+                    ]
+                }
+            },
+            // 构子函数，立即执行函数
+            created: function () {
+                this.findPage();
+                // 查询产品类型
+                this.selectQuery("/MaterialManagement/productType");
+                this.selectQuery("/MaterialManagement/TheWinningType");
+                this.selectQuery("/MaterialManagement/manufacturer");
+                this.selectQuery("/MaterialManagement/franchiser");
+            },
+            methods: {
+                // 回填下拉框事件封装
+                selectQuery(url) {
+                    axios.get(url).then((res) => {
+                        // 判断回显哪一个模型数据
+                        switch (url) {
+                            case "/MaterialManagement/productType":
+                                this.ComboBoxData.productType = res.data;
+                                break;
+                            case "/MaterialManagement/TheWinningType":
+                                this.ComboBoxData.TheWinningType = res.data;
+                                break;
+                            case "/MaterialManagement/manufacturer":
+                                this.ComboBoxData.manufacturer = res.data;
+                                break;
+                            case "/MaterialManagement/franchiser":
+                                this.ComboBoxData.franchiser = res.data;
+                                break;
+                        }
+                    });
+                },
+                // 搜索事件
+                search() {
+                    this.findPage();
+                },
+                // 重置表单
+                resetForm() {
+                    this.pagination = {
+                        currentPage: 1,
+                        pageSize: 10,
+                        total: 0,
+                        name: '',
+                        code: ''
+                    }
+                    this.$notify({
+                        title: '重置成功',
+                        type: 'success'
+                    });
+
+                    this.findPage();
+                },
+                // 添加事件
+                add() {
+                    // 清空表单
+                    this.formData = {};
+                    this.dialogVisible = true;
+                },
+                // 导入事件
+                tolead() {
+                    // 显示
+                    this.dialogVisible3 = true;
+                    // 清空内容
+
+                    //this.$notify({
+                    //    title: '成功',
+                    //    message: '点击导入事件',
+                    //    type: 'success'
+                    //});
+                },
+                // 导出事件
+                derive() {
+                    this.$notify({
+                        title: '成功',
+                        message: '点击导出事件',
+                        type: 'success'
+                    });
+                },
+                // 分页查询
+                findPage() {
+                    axios.post("/MaterialManagement/qieryList", {
+                        currentPage: this.pagination.currentPage,
+                        pageSize: this.pagination.pageSize,
+                        name: this.pagination.name,//查询条件
+                        code: this.pagination.code//查询编码
+                    }).then((res) => {
+                        // 判断是否成功
+                        if (!res.data.flag && res.data.flag != null) {
+                            this.$notify.error({
+                                title: '错误',
+                                message: res.data.message
+                            });
+                        }
+                        // 回显数据
+                        this.tableData = res.data.rows;
+                        this.pagination.total = res.data.total;
+                    });
+                },
+                //切换页码
+                handleCurrentChange(currentPage) {
+                    this.pagination.currentPage = currentPage;
+                    this.findPage();
+                },
+                handleCurrentChange2(currentPage) {
+                    this.pagination2.currentPage = currentPage;
+                    axios.post("/MaterialManagement/findByPage", this.pagination2).then((res) => {
+                        this.tableData2 = res.data.rows;
+                        this.pagination2.total = res.data.total;
+                    });
+                },
+                // 对话框的关闭确定
+                handleClose(done) {
+                    this.$confirm('确认关闭？')
+                        .then(_ => {
+                            done();
+                            // 重置表单
+                            this.$refs.upload.clearFiles();
+                            this.formData = {};
+                            this.tableData2 = [];
+                            this.findPage();
+                            this.hasFile = false;
+                        })
+                        .catch(_ => { });
+                },
+                // 添加物质保存事件
+                submitForm(formName) {
+                    this.$refs[formName].validate((valid) => {
+                        if (valid) {
+                            // 异步请求保存数据
+                            axios.post("/MaterialManagement/add", this.formData).then((res) => {
+                                if (res.data.flag) {
+                                    this.$notify({
+                                        title: '成功提示',
+                                        message: res.data.message,
+                                        type: 'success'
+                                    });
+                                } else {
+                                    this.$notify.error({
+                                        title: '错误提示',
+                                        message: res.data.message
+                                    });
+                                }
+                                // 调用重置刷新页面
+                                this.resetForm2('formData');
+                                this.findPage();
+                            });
+                        } else {
+                            this.$notify({
+                                title: '错误信息',
+                                type: 'warning',
+                                message: '请检查是否填写正确信息'
+                            });
+                            return false;
+                        }
+                    });
+                },
+                // 对话框重置表单
+                resetForm2(formName) {
+                    this.$refs[formName].resetFields();
+                    this.dialogVisible = false;
+                    this.dialogVisible2 = false;
+                },
+                // 修改点击事件
+                recompose(Id) {
+                    // 清空表单
+                    this.formData = {};
+                    this.dialogVisible2 = true;
+                    // 根据id异步请求回填数据
+                    axios.get("/MaterialManagement/findById?Id=" + Id).then((res) => {
+                        // 判断是否符合
+                        if (res.data.flag) {
+                            console.log(res.data.data);
+                            this.formData = res.data.data;
+                        } else {
+                            this.$notify.error({
+                                title: '错误提示',
+                                message: res.data.message
+                            });
+                        }
+                    });
+                },
+                // 修改保存事件
+                submitForm2(formName) {
+                    this.$refs[formName].validate((valid) => {
+                        if (valid) {
+                            // 异步请求保存数据
+                            axios.post("/MaterialManagement/recompose", this.formData).then((res) => {
+                                if (res.data.flag) {
+                                    this.$notify({
+                                        title: '成功提示',
+                                        message: res.data.message,
+                                        type: 'success'
+                                    });
+                                } else {
+                                    this.$notify.error({
+                                        title: '错误提示',
+                                        message: res.data.message
+                                    });
+                                }
+                                // 调用重置刷新页面
+                                this.resetForm2('formData');
+                                this.findPage();
+                            });
+                        } else {
+                            this.$notify({
+                                title: '错误信息',
+                                type: 'warning',
+                                message: '请检查是否填写正确信息'
+                            });
+                            return false;
+                        }
+                    });
+                },
+                // 删除事件
+                deltetData(Id) {
+                    // 询问是否要删除数据
+                    this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+
+                        // 异步请求删除数据
+                        axios.post("/MaterialManagement/remove?Id=" + Id).then((res) => {
+                            if (res.data.flag) {
+                                this.$notify({
+                                    title: '成功提示',
+                                    message: res.data.message,
+                                    type: 'success'
+                                });
+                                // 查询查询数据
+                                this.findPage();
+                            } else {
+                                this.$notify({
+                                    title: '错误信息',
+                                    type: 'warning',
+                                    message: res.data.message
+                                });
+                                return false;
+                            }
+                        });
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消删除'
+                        });
+                    });
+                },
+                //上传之前进行文件格式校验
+                beforeUpload(file) {
+                    const isXLS = file.type === 'application/vnd.ms-excel';
+                    if (isXLS) {
+                        return true;
+                    }
+                    const isXLSX = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                    if (isXLSX) {
+                        return true;
+                    }
+                    this.$message.error('上传文件只能是xls或者xlsx格式!');
+                    return false;
+                },
+                // 上传文件成功
+                successFile(response) {
+                    if (response.flag) {
+                        // 隐藏伤处文件按钮;
+                        this.hasFile = true;
+                        this.$message({
+                            message: response.message,
+                            type: 'success'
+                        });
+                        this.tableData2 = response.data.Data.rows;
+                        this.pagination2.total = response.data.Data.total;
+                    } else {
+                        this.$message({
+                            message: response.message,
+                            type: 'warning'
+                        });
+                    } 
+                    this.$refs.upload.clearFiles();
+                },
+                // 隔行换色
+                tableRowClassName({ row, rowIndex }) {
+                    if (rowIndex === 1) {
+                        return 'warning-row';
+                    } else if (rowIndex === 3) {
+                        return 'success-row';
+                    }
+                    return '';
+                },
+                // 取消上传事件
+                CancelTheIpload() {
+                    this.$refs.upload.clearFiles();
+                    this.dialogVisible3 = false;
+                    // 清空表格数据
+                    this.tableData2 = [];
+                    // 上传按钮展示
+                    this.hasFile = false;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
