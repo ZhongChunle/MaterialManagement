@@ -31,6 +31,10 @@
         .pd .el-table .success-row {
             background: #f0f9eb;
         }
+
+        .notify {
+            width:300px!important;
+        }
     </style>
 </head>
 <body>
@@ -327,7 +331,7 @@
                 hasFile: false,
                 // 四个下拉框数据汇总
                 ComboBoxData: {
-                    //productType: [],
+                    //productType: [ ],
                     //TheWinningType: [],
                     //manufacturer: [],
                     //franchiser:[]
@@ -465,11 +469,17 @@
                 },
                 // 导出事件
                 derive() {
-                    this.$notify({
-                        title: '成功',
-                        message: '点击导出事件',
-                        type: 'success'
+                    // 异步请求下载
+                    this.$confirm('请问是导出当前页内容还是导出全部内容', '导出确认提示', {
+                        confirmButtonText: '导出当前页',
+                        cancelButtonText: '导出全部',
+                        type: 'warning'
+                    }).then(() => {
+                        window.location.href = "/MaterialManagement/ExportToExcel?currentPage=" + this.pagination.currentPage + "&pageSize=" + this.pagination.pageSize + "&name=" + this.pagination.name + "&code=" + this.pagination.code +"&flag=true";
+                    }).catch(() => {
+                        window.location.href = "/MaterialManagement/ExportToExcel?flag=false";
                     });
+
                 },
                 // 分页查询
                 findPage() {
@@ -615,7 +625,6 @@
                         cancelButtonText: '取消',
                         type: 'warning'
                     }).then(() => {
-
                         // 异步请求删除数据
                         axios.post("/MaterialManagement/remove?Id=" + Id).then((res) => {
                             if (res.data.flag) {
@@ -635,10 +644,6 @@
                                 return false;
                             }
                         });
-                        this.$message({
-                            type: 'success',
-                            message: '删除成功!'
-                        });
                     }).catch(() => {
                         this.$message({
                             type: 'info',
@@ -646,7 +651,7 @@
                         });
                     });
                 },
-                //上传之前进行文件格式校验
+                // 上传之前进行文件格式校验
                 beforeUpload(file) {
                     const isXLS = file.type === 'application/vnd.ms-excel';
                     if (isXLS) {
@@ -698,11 +703,11 @@
                 },
                 // 确认上传事件
                 ConfirmUpload() {
-                    axios.post("/MaterialManagement/").then((res) => {
+                    axios.post("/MaterialManagement/ConfirmUpload").then((res) => {
                         if (res.data.flag) {
                             this.$notify({
-                                title: '成功',
-                                message: res.data.message,
+                                customClass:"notify",
+                                title: res.data.message,
                                 type: 'success'
                             });
                             this.$refs.upload.clearFiles();
@@ -710,10 +715,13 @@
                             this.tableData2 = [];
                             this.findPage();
                             this.hasFile = false;
+                            this.dialogVisible3 = false;
                         } else {
-                            this.$notify.error({
-                                title: '错误',
-                                message: res.data.message
+                            this.$notify({
+                                title: '警告',
+                                title: res.data.message,
+                                message: "主要原因可能是商品名称、经销商、产品类型、中标类型与数据库不对等，请联系管理",
+                                type: 'warning'
                             });
                         }
                     });
